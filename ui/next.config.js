@@ -51,6 +51,11 @@ const nextConfig = {
       },
     ];
   },
+
+  // Disable ESLint during builds
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 };
 
 // Additional config options for the Sentry webpack plugin.

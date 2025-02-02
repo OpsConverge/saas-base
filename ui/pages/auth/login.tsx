@@ -106,7 +106,7 @@ const Login: NextPageWithLayout<
   }
 
   if (status === 'authenticated') {
-    router.push(redirectUrl);
+    router.push('/repos');
   }
 
   const params = token ? `?token=${token}` : '';
