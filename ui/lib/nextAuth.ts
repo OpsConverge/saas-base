@@ -272,7 +272,13 @@ export const getAuthOptions = (
 
   const authOptions: NextAuthOptions = {
     adapter,
-    providers,
+    providers: [
+      GitHubProvider({
+        clientId: process.env.GITHUB_CLIENT_ID as string,
+        clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
+        allowDangerousEmailAccountLinking: true,
+      }),
+    ],
     pages: {
       signIn: '/auth/login',
       verifyRequest: '/auth/verify-request',
@@ -358,6 +364,7 @@ export const getAuthOptions = (
       async session({ session, token, user }) {
         // When using JWT for sessions, the JWT payload (token) is provided.
         // When using database sessions, the User (user) object is provided.
+        session.accessToken = token.accessToken as string; // Pass access token to session
         if (session && (token || user)) {
           session.user.id = token?.sub || user?.id;
         }
@@ -389,8 +396,14 @@ export const getAuthOptions = (
           return { ...token, name: session.name };
         }
 
+        if (account) {
+          token.accessToken = account.access_token; // Store GitHub access token
+        }
+
         return token;
       },
+
+      
     },
     jwt: {
       encode: async (params) => {
