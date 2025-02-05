@@ -276,5 +276,17 @@
   "start-deployment": "Start Deployment",
   "deployment-status": "Deployment Status",
   "deployment-in-progress": "Deployment in progress...",
-  "refresh-status": "Refresh Status"
+  "refresh-status": "Refresh Status",
+  "welcome-to-devops": "Welcome to DevOps as a Service",
+  "intro-message": "Click Next to get started.",
+  "next": "Next",
+  "select-provider": "Select Provider",
+  "back": "Back",
+  "authentication": "Authentication",
+  "selected-provider": "Selected Provider",
+  "selected-template": "Selected Template",
+  "next-and-authenticate": "Next & Authenticate",
+  "finish-deployment": "Finish Deployment",
+  "authentication-successful": "Authentication successful!",
+  "authentication-required": "Please authenticate first."
 }
