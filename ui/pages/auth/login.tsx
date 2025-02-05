@@ -106,7 +106,7 @@ const Login: NextPageWithLayout<
   }
 
   if (status === 'authenticated') {
-    router.push('/repos');
+    router.push('/dashboard');
   }
 
   const params = token ? `?token=${token}` : '';
