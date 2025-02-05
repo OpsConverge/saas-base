@@ -1,31 +1,36 @@
 import { Error, Loading } from '@/components/shared';
+import { AccessControl } from '@/components/shared/AccessControl';
 import { TeamTab } from '@/components/team';
-import DeployInfra from '@/components/team/DeployInfra'; // Component for deploying infra
-import InfraInventory from '@/components/team/InfraInventory'; // Component for infra inventory
+import env from '@/lib/env';
 import useTeam from 'hooks/useTeam';
 import type { GetServerSidePropsContext } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import env from '@/lib/env';
 import type { TeamFeature } from 'types';
 
-const Infrastructure = ({ teamFeatures }: { teamFeatures: TeamFeature }) => {
+const InfrastructurePage = ({ teamFeatures }: { teamFeatures: TeamFeature }) => {
   const { t } = useTranslation('common');
   const { isLoading, isError, team } = useTeam();
 
-  if (isLoading) return <Loading />;
-  if (isError) return <Error message={isError.message} />;
-  if (!team) return <Error message={t('team-not-found')} />;
+  if (isLoading) {
+    return <Loading />;
+  }
+
+  if (isError) {
+    return <Error message={isError.message} />;
+  }
+
+  if (!team) {
+    return <Error message={t('team-not-found')} />;
+  }
 
   return (
     <>
       <TeamTab activeTab="infrastructure" team={team} teamFeatures={teamFeatures} />
       <div className="space-y-6">
-        {/* Component for initiating and managing infra deployments */}
-        <DeployInfra team={team} />
-
-        {/* Component for listing and managing deployed infrastructure */}
-        <InfraInventory team={team} />
+        <h1>{t('infrastructure-deployment')}</h1>
+        <p>{t('infrastructure-description')}</p>
+        {/* Add infrastructure-specific components here */}
       </div>
     </>
   );
@@ -40,4 +45,4 @@ export async function getServerSideProps({ locale }: GetServerSidePropsContext) 
   };
 }
 
-export default Infrastructure;
+export default InfrastructurePage;

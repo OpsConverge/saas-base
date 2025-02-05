@@ -248,7 +248,12 @@
   "try-again-later": "or visit here later.",
   "multiple-sso-teams": "User belongs to multiple teams with SSO enabled. Please enter your team slug to get started.",
   "code-ci-cd-deploy": "Code CI/CD Deploy",
+  "ci-cd-description": "Manage your CI/CD pipelines and deployments.",
   "infrastructure-deployment": "Infrastructure Deployment",
+  "infrastructure-description": "Manage your infrastructure as code.",
   "observability": "Observability",
-  "cost-management": "Cost Management"
+  "observability-description": "Monitor and observe your systems.",
+  "cost-management": "Cost Management",
+  "cost-management-description": "Track and optimize your costs.",
+  "security-description": "Manage your team's security settings."
 }
