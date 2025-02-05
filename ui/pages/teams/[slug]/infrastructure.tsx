@@ -1,79 +1,54 @@
+// File: pages/teams/[slug]/infrastructure.tsx
+import { useState } from 'react';
 import { Error, Loading } from '@/components/shared';
-import { TeamTab } from '@/components/team';
-import env from '@/lib/env';
 import useTeam from 'hooks/useTeam';
 import type { GetServerSidePropsContext } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import DeployInfraFlow from '@/components/team/DeployInfraFlow';
+import InfraInventory from '@/components/team/InfraInventory';
+import env from '@/lib/env';
 import type { TeamFeature } from 'types';
-import { useState } from 'react';
-import CloudProviderSelection from '@/components/infrastructure/CloudProviderSelection';
-import DeploymentTemplateSelection from '@/components/infrastructure/DeploymentTemplateSelection';
-import CloudProviderAuth from '@/components/infrastructure/CloudProviderAuth';
-import GitHubWorkflowIntegration from '@/components/infrastructure/GitHubWorkflowIntegration';
-import DeploymentStatus from '@/components/infrastructure/DeploymentStatus';
 
-const InfrastructurePage = ({ teamFeatures }: { teamFeatures: TeamFeature }) => {
+const Infrastructure = ({ teamFeatures }: { teamFeatures: TeamFeature }) => {
   const { t } = useTranslation('common');
   const { isLoading, isError, team } = useTeam();
-  const [activeTab, setActiveTab] = useState<'cloud-provider' | 'template' | 'auth' | 'workflow' | 'status'>('cloud-provider');
+  const [activeTab, setActiveTab] = useState<'deploy' | 'inventory'>('deploy');
 
-  if (isLoading) {
-    return <Loading />;
-  }
-
-  if (isError) {
-    return <Error message={isError.message} />;
-  }
-
-  if (!team) {
-    return <Error message={t('team-not-found')} />;
-  }
+  if (isLoading) return <Loading />;
+  if (isError) return <Error message={isError.message} />;
+  if (!team) return <Error message={t('team-not-found')} />;
 
   return (
-    <>
-      <TeamTab activeTab="infrastructure" team={team} teamFeatures={teamFeatures} />
-      <div className="space-y-6">
-        <div className="flex space-x-4 border-b">
-          <button
-            className={`px-4 py-2 ${activeTab === 'cloud-provider' ? 'border-b-2 border-blue-500' : ''}`}
-            onClick={() => setActiveTab('cloud-provider')}
-          >
-            {t('cloud-provider')}
-          </button>
-          <button
-            className={`px-4 py-2 ${activeTab === 'template' ? 'border-b-2 border-blue-500' : ''}`}
-            onClick={() => setActiveTab('template')}
-          >
-            {t('template')}
-          </button>
-          <button
-            className={`px-4 py-2 ${activeTab === 'auth' ? 'border-b-2 border-blue-500' : ''}`}
-            onClick={() => setActiveTab('auth')}
-          >
-            {t('auth')}
-          </button>
-          <button
-            className={`px-4 py-2 ${activeTab === 'workflow' ? 'border-b-2 border-blue-500' : ''}`}
-            onClick={() => setActiveTab('workflow')}
-          >
-            {t('workflow')}
-          </button>
-          <button
-            className={`px-4 py-2 ${activeTab === 'status' ? 'border-b-2 border-blue-500' : ''}`}
-            onClick={() => setActiveTab('status')}
-          >
-            {t('status')}
-          </button>
-        </div>
-
-        {activeTab === 'cloud-provider' && <CloudProviderSelection />}
-        {activeTab === 'template' && <DeploymentTemplateSelection />}
-        {activeTab === 'auth' && <CloudProviderAuth />}
-        {activeTab === 'workflow' && <GitHubWorkflowIntegration />}
-        {activeTab === 'status' && <DeploymentStatus />}
+    <div className="p-6">
+      <div className="mb-4 border-b">
+        <button
+          onClick={() => setActiveTab('deploy')}
+          className={`px-4 py-2 mr-2 ${
+            activeTab === 'deploy'
+              ? 'border-b-2 border-blue-600 font-semibold'
+              : 'text-gray-600'
+          }`}
+        >
+          Deploy Infra
+        </button>
+        <button
+          onClick={() => setActiveTab('inventory')}
+          className={`px-4 py-2 ${
+            activeTab === 'inventory'
+              ? 'border-b-2 border-blue-600 font-semibold'
+              : 'text-gray-600'
+          }`}
+        >
+          Infra Inventory
+        </button>
       </div>
-    </>
+      {activeTab === 'deploy' ? (
+        <DeployInfraFlow team={team} />
+      ) : (
+        <InfraInventory team={team} />
+      )}
+    </div>
   );
 };
 
@@ -86,4 +61,4 @@ export async function getServerSideProps({ locale }: GetServerSidePropsContext) 
   };
 }
 
-export default InfrastructurePage;
+export default Infrastructure;
