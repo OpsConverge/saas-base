@@ -101,8 +101,15 @@ const DeployInfraFlow: React.FC<DeployInfraFlowProps> = ({ team }) => {
       toast.success('Deployment successful!');
       setCurrentStep(5); // Move to the final step
     } catch (err) {
-      setError(err.message || 'An error occurred during deployment.');
-      toast.error(err.message || 'An error occurred during deployment.');
+      // Check if err is an instance of Error
+      if (err instanceof Error) {
+        setError(err.message);
+        toast.error(err.message);
+      } else {
+        // Handle cases where err is not an Error object
+        setError('An error occurred during deployment.');
+        toast.error('An error occurred during deployment.');
+      }
     } finally {
       setDeploying(false);
     }
