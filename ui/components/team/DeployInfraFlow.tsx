@@ -84,14 +84,15 @@ const DeployInfraFlow: React.FC<DeployInfraFlowProps> = ({ team }) => {
       const { AccessKeyId, SecretAccessKey, SessionToken } = await assumeRoleResponse.json();
 
       // Step 3: Deploy the selected template using CloudFormation
-      const deployResponse = await fetch('/api/aws/deployTemplate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          credentials: { AccessKeyId, SecretAccessKey, SessionToken },
-          templateUrl: `https://your-platform-bucket.s3.amazonaws.com/${selectedTemplate}.yaml`,
-        }),
-      });
+    const templateUrl = `${process.env.S3_TEMPLATE_BUCKET_URL}/${selectedTemplate}.yaml`;
+    const deployResponse = await fetch('/api/aws/deployTemplate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        credentials: { AccessKeyId, SecretAccessKey, SessionToken },
+        templateUrl,
+      }),
+    });
 
       if (!deployResponse.ok) {
         throw new Error('Failed to deploy template');
