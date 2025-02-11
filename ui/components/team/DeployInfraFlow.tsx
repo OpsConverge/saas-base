@@ -78,15 +78,19 @@ const DeployInfraFlow: React.FC<DeployInfraFlowProps> = ({ team }) => {
       // 2. URL-encode the template URL
       const encodedTemplateUrl = encodeURIComponent(rawTemplateUrl);
 
+      // Example dynamic external ID
+      const externalID = Math.random().toString(36).substring(2, 10);
+
       // 5. Build the CF launch URL
-    //    param_ExternalID must match the parameter name in the template
-    const launchUrl = `https://console.aws.amazon.com/cloudformation/home?region=${region}#/stacks/new?` +
-      `stackName=${stackName}` +
-      `&templateURL=${encodedTemplateUrl}` +
-      `&param_OpsCOnvergeID=${randomExternalId}`;
+      // Build the Quick Create URL
+      const quickCreateUrl = `https://console.aws.amazon.com/cloudformation/home?region=${region}#/stacks/quickcreate
+      ?templateUrl=${encodedTemplateUrl}
+      &stackName=${stackName}
+      &param_ExternalID=${externalID}
+      &capabilities=CAPABILITY_IAM`;
       
       // 4. Open in a new tab/window
-      window.open(launchUrl, '_blank');
+      window.open(quickCreateUrl, '_blank');
       
       // 5. Show success message and move to step 5
       toast.success('Opened AWS CloudFormation console in a new tab!');
