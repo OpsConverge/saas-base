@@ -66,18 +66,24 @@ const DeployInfraFlow: React.FC<DeployInfraFlowProps> = ({ team }) => {
 
       // You can incorporate the AWS account ID if your template has a parameter for it:
       // e.g. param_AWSAccountId=<awsAccountId> in the URL
+      
+      // 2. Generate an External ID (simple random)
+      const randomExternalId = Math.random().toString(36).substring(2, 10);
 
       // 1. Define your region, stack name, and the template S3 URL
       const region = 'us-east-2';
-      const stackName = 'OpsConvergeBootstrapStack';
+      const stackName = `MyStack-${Date.now()}`;
       const rawTemplateUrl = `https://opsconverge01.s3.${region}.amazonaws.com/Basic.yaml`;
 
       // 2. URL-encode the template URL
       const encodedTemplateUrl = encodeURIComponent(rawTemplateUrl);
 
-      // 3. Construct the "Launch Stack" URL
-      // Optional: add param_ParameterKey=ParameterValue to pass parameters
-      const launchUrl = `https://console.aws.amazon.com/cloudformation/home?region=${region}#/stacks/new?stackName=${stackName}&templateURL=${encodedTemplateUrl}`;
+      // 5. Build the CF launch URL
+    //    param_ExternalID must match the parameter name in the template
+    const launchUrl = `https://console.aws.amazon.com/cloudformation/home?region=${region}#/stacks/new?` +
+      `stackName=${stackName}` +
+      `&templateURL=${encodedTemplateUrl}` +
+      `&param_OpsCOnvergeID=${randomExternalId}`;
       
       // 4. Open in a new tab/window
       window.open(launchUrl, '_blank');
