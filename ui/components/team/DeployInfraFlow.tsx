@@ -84,7 +84,7 @@ const DeployInfraFlow: React.FC<DeployInfraFlowProps> = ({ team }) => {
       const { AccessKeyId, SecretAccessKey, SessionToken } = await assumeRoleResponse.json();
 
       // Step 3: Deploy the selected template using CloudFormation
-    const templateUrl = `${process.env.S3_TEMPLATE_BUCKET_URL}/${selectedTemplate}.yaml`;
+    const templateUrl = `https://opsconverge01.s3.us-east-2.amazonaws.com/Basic.yaml`
     const deployResponse = await fetch('/api/aws/deployTemplate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
