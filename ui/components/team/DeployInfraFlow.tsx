@@ -84,11 +84,11 @@ const DeployInfraFlow: React.FC<DeployInfraFlowProps> = ({ team }) => {
       // 5. Build the CF launch URL
       // Build the Quick Create URL
       const quickCreateUrl = `https://console.aws.amazon.com/cloudformation/home?region=${region}#/stacks/quickcreate
-      ?templateUrl=${encodedTemplateUrl}
-      &stackName=${stackName}
-      &param_ExternalID=${externalID}
-      &capabilities=CAPABILITY_IAM`;
-      
+        ?templateUrl=${encodedTemplateUrl}
+        &stackName=${stackName}
+        &param_ExternalID=${externalID}
+        &capabilities=CAPABILITY_IAM`;
+    
       // 4. Open in a new tab/window
       window.open(quickCreateUrl, '_blank');
       
