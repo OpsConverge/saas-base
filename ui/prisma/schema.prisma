@@ -73,6 +73,8 @@ model Team {
   id              String       @id @default(uuid())
   name            String
   slug            String       @unique
+  roleArn         String?  
+  externalId      String?  
   domain          String?      @unique
   defaultRole     Role         @default(MEMBER)
   billingId       String?

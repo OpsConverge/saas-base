@@ -11,6 +11,8 @@ export const createTeam = async (param: {
   userId: string;
   name: string;
   slug: string;
+  roleArn: String;
+  externalId: String;
 }) => {
   const { userId, name, slug } = param;
 

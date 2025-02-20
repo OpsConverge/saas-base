@@ -1,0 +1,26 @@
+Resources:
+  OpsConvergeRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Join ["-", ["OpsConverge", !Ref OpsConvergeID]]
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: "arn:aws:iam::727646477699:root"
+            Action: sts:AssumeRole
+            Condition:
+              StringEquals:
+                sts:ExternalId: !Ref OpsConvergeID
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AdministratorAccess
+
+  OpsConvergeEventHandler:
+    Type: Custom::OpsConvergeEventHandler
+    Properties:
+      ServiceToken: "arn:aws:lambda:us-east-2:727646477699:function:customResourceCallback"
+      StackName: !Ref AWS::StackName
+      OpsConvergeID: !Ref OpsConvergeID
+      RoleArnOverride: !GetAtt OpsConvergeRole.Arn
+      ExternalIDOverride: !Ref OpsConvergeID
