@@ -38,6 +38,12 @@ const TeamNavigation = ({ slug, activePathname }: NavigationItemsProps) => {
       active: activePathname === `/teams/${slug}/infrastructure`,
     },
     {
+      name: t('cloud-connect'),
+      href: `/teams/${slug}/cloud-connect`,
+      icon: CloudIcon, // Icon for Cloud Connect
+      active: activePathname === `/teams/[slug]/cloud-connect`,
+    },
+    {
       name: t('observability'),
       href: `/teams/${slug}/observability`,
       icon: EyeIcon, // You can use a different icon if needed

@@ -352,19 +352,32 @@ export const getAuthOptions = (
           await linkAccount(existingUser, account);
         }
 
-        return true;
+        // Fetch the team ID for the user from the `TeamMember` table using Prisma
+        const teamMember = await prisma.teamMember.findFirst({
+          where: {
+            userid: user.id, // Ensure this matches the column name in your Prisma schema
+          },
+          select: {
+            teamid: true, // Ensure this matches the column name in your Prisma schema
+          },
+        });
+
+        if (teamMember && teamMember.teamId) {
+          user.teamId = teamMember.teamId; // Add team ID to the user object
+          console.log('Team ID added to user:', user.teamId);
+          return true; // Allow login
+        }
+
+        console.log('No team ID found for user:', user.id);
+        return false; // Deny login if no team ID is found
       },
 
       async session({ session, token, user }) {
-        // When using JWT for sessions, the JWT payload (token) is provided.
-        // When using database sessions, the User (user) object is provided.
-        if (session && (token || user)) {
-          session.user.id = token?.sub || user?.id;
-        }
-
-        if (user?.name) {
-          user.name = user.name.substring(0, maxLengthPolicies.name);
-        }
+        // Add the team ID from the token to the session
+    if (token.teamId) {
+      session.user.teamId = token.teamId;
+      console.log('Team ID added to session:', session.user.teamId);
+    } 
         if (session?.user?.name) {
           session.user.name = session.user.name.substring(
             0,
@@ -375,22 +388,29 @@ export const getAuthOptions = (
         return session;
       },
 
-      async jwt({ token, trigger, session, account }) {
-        if (trigger === 'signIn' && account?.provider === 'boxyhq-idp') {
-          const userByAccount = await adapter.getUserByAccount!({
-            providerAccountId: account.providerAccountId,
-            provider: account.provider,
-          });
-
-          return { ...token, sub: userByAccount?.id };
-        }
-
-        if (trigger === 'update' && 'name' in session && session.name) {
-          return { ...token, name: session.name };
-        }
-
+      async jwt({ token, trigger, session, account, user }) {
+          // During the first sign-in, `user` will be available
+          if (user) {
+            // Fetch the team ID for the user from the `TeamMember` table using Prisma
+            const teamMember = await prisma.teamMember.findFirst({
+              where: {
+                userId: user.id, // Ensure this matches the column name in your Prisma schema
+              },
+              select: {
+                teamId: true, // Ensure this matches the column name in your Prisma schema
+              },
+            });
+    
+            // Add the team ID to the token if it exists
+            if (teamMember && teamMember.teamId) {
+              token.teamId = teamMember.teamId;
+              console.log('Team ID added to token:', token.teamId);
+            } 
+          }
+      
         return token;
       },
+      
     },
     jwt: {
       encode: async (params) => {

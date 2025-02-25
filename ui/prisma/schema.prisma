@@ -73,8 +73,6 @@ model Team {
   id              String       @id @default(uuid())
   name            String
   slug            String       @unique
-  roleArn         String?  
-  externalId      String?  
   domain          String?      @unique
   defaultRole     Role         @default(MEMBER)
   billingId       String?
@@ -85,8 +83,22 @@ model Team {
   invitations     Invitation[]
   apiKeys         ApiKey[]
 
+  // Relation to TeamRole (one-to-one)
+  teamRole        TeamRole?
+
   @@index([billingId])
 }
+
+model TeamRole {
+  id         String   @id @default(uuid())
+  teamId     String   @unique
+  roleArn    String
+  externalId String
+  teamId String
+
+  team       Team     @relation(fields: [teamId], references: [id])
+}
+
 
 model TeamMember {
   id        String   @id @default(uuid())

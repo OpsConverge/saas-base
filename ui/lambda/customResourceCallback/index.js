@@ -1,42 +1,64 @@
-// lambda/customResourceCallback/index.js
+// lambda/customResourceCallback/index.mjs
+import https from 'https';
+import { parse as urlParse } from 'url';
 
-const https = require('https');
-const url = require('url');
-
-exports.handler = async (event, context) => {
+export async function handler(event, context) {
   console.log("Custom Resource Event:", JSON.stringify(event, null, 2));
 
+  let responseStatus = "SUCCESS";
+  let responseData = {};
+
   try {
-    // For Delete events, simply signal success.
     if (event.RequestType === 'Delete') {
-      await sendResponse(event, context, "SUCCESS");
-      return;
+      // For Delete events, simply signal success.
+      return await sendResponse(event, context, "SUCCESS");
     }
 
-    // Extract required properties from the event.
-    // The CloudFormation template passes these properties.
-    const OpsConvergeID = event.ResourceProperties.OpsConvergeID; // Provided in template.
-    const stackName = event.ResourceProperties.StackName; // Passed using !Ref AWS::StackName
-    // In some designs, you might retrieve the role ARN from a GetAtt, here we assume it is passed as an override.
-    const roleArn = event.ResourceProperties.RoleArnOverride;
-    const externalId = event.ResourceProperties.ExternalIDOverride;
+    // Extract required properties.
+    const OpsConvergeID = event.ResourceProperties.OpsConvergeID;         // Provided in template.
+    const stackName = event.ResourceProperties.StackName;                 // !Ref AWS::StackName
+    const roleArn = event.ResourceProperties.RoleArnOverride;             // e.g. !GetAtt OpsConvergeRole.Arn
+    const externalId = event.ResourceProperties.ExternalIDOverride;       // e.g. from parameter OpsConvergeID
+    const teamId = event.ResourceProperties.TeamID;                       // New property: Team ID
 
-    if (!OpsConvergeID || !stackName || !roleArn || !externalId) {
-      throw new Error("Missing required properties: OpsConvergeID, StackName, RoleArnOverride, or ExternalIDOverride");
+    if (!OpsConvergeID || !stackName || !roleArn || !teamId) {
+      throw new Error("Missing required properties: OpsConvergeID, StackName, RoleArnOverride, or TeamID");
     }
 
-    // Prepare the payload to send to your DevOps portal.
+    // Prepare the payload.
     const postData = JSON.stringify({
       OpsConvergeID,
       stackName,
       roleArn,
       externalId,
+      teamId, // Include the teamId in the payload
     });
 
-    // Configure your portal's API endpoint.
-    // Replace with your actual portal domain and API path.
-    const endpoint = "https://OpsConverge.com/api/teams/storeCrossAccountRoleCallback";
-    const parsedUrl = url.parse(endpoint);
+    // 1. Call the storage endpoint to update your database.
+    const storeEndpoint = "https://OpsConverge.com/api/teams/storeCrossAccountRoleCallback";
+    await postToEndpoint(storeEndpoint, postData);
+
+    // 2. Call the notification endpoint to push a real-time update.
+    const notificationEndpoint = "https://OpsConverge.com/api/notifyDeploymentComplete";
+    await postToEndpoint(notificationEndpoint, postData);
+
+  } catch (err) {
+    console.error("Error in custom resource handler:", err);
+    responseStatus = "FAILED";
+    responseData = { Error: err.message };
+  } finally {
+    try {
+      await sendResponse(event, context, responseStatus, responseData);
+      console.log("Response sent to CloudFormation");
+    } catch (sendErr) {
+      console.error("Error sending response to CloudFormation:", sendErr);
+    }
+  }
+}
+
+function postToEndpoint(endpoint, postData) {
+  return new Promise((resolve, reject) => {
+    const parsedUrl = urlParse(endpoint);
     const options = {
       hostname: parsedUrl.hostname,
       port: 443,
@@ -48,34 +70,25 @@ exports.handler = async (event, context) => {
       },
     };
 
-    await new Promise((resolve, reject) => {
-      const req = https.request(options, (res) => {
-        let data = '';
-        res.on('data', (chunk) => {
-          data += chunk;
-        });
-        res.on('end', () => {
-          console.log("Response from portal:", data);
-          resolve();
-        });
+    const req = https.request(options, (res) => {
+      let data = "";
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => {
+        console.log(`Response from ${endpoint}:`, data);
+        resolve();
       });
-      req.on('error', (e) => {
-        console.error("Error sending data to portal:", e);
-        reject(e);
-      });
-      req.write(postData);
-      req.end();
     });
 
-    // Signal success back to CloudFormation.
-    await sendResponse(event, context, "SUCCESS");
-  } catch (err) {
-    console.error("Error in custom resource handler:", err);
-    await sendResponse(event, context, "FAILED", { Error: err.message });
-  }
-};
+    req.on('error', (e) => {
+      console.error(`Error sending data to ${endpoint}:`, e);
+      reject(e);
+    });
 
-// Helper function to send response back to CloudFormation.
+    req.write(postData);
+    req.end();
+  });
+}
+
 function sendResponse(event, context, responseStatus, responseData = {}) {
   return new Promise((resolve, reject) => {
     const responseBody = JSON.stringify({
@@ -89,7 +102,7 @@ function sendResponse(event, context, responseStatus, responseData = {}) {
     });
     console.log("Response body:", responseBody);
 
-    const parsedUrl = url.parse(event.ResponseURL);
+    const parsedUrl = urlParse(event.ResponseURL);
     const options = {
       hostname: parsedUrl.hostname,
       port: 443,
@@ -115,3 +128,5 @@ function sendResponse(event, context, responseStatus, responseData = {}) {
     req.end();
   });
 }
+
+export default handler;

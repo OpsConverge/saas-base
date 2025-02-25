@@ -288,5 +288,18 @@
   "next-and-authenticate": "Next & Authenticate",
   "finish-deployment": "Finish Deployment",
   "authentication-successful": "Authentication successful!",
-  "authentication-required": "Please authenticate first."
+  "authentication-required": "Please authenticate first.",
+  "connect-to-cloud": "Connect to Cloud",
+  "connect-to": "Connect to",
+  "cloud-connect": "Cloud Connect",
+  "instructions-for-aws": "Follow these steps to connect to AWS...",
+  "instructions-for-azure": "Follow these steps to connect to Azure...",
+  "instructions-for-gcp": "Follow these steps to connect to GCP...",
+  "aws-instructions": "AWS-specific instructions go here.",
+  "azure-instructions": "Azure-specific instructions go here.",
+  "gcp-instructions": "GCP-specific instructions go here.",
+  "connect-to-aws": "Connect to AWS",
+  "enter-tenant-id": "Enter your Tenant ID",
+  "team-id-missing": "Team ID is missing. Please try again or contact support.",
+  "opened-aws-console": "Opened AWS CloudFormation console in a new tab!"
 }

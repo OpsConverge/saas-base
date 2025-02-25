@@ -324,6 +324,11 @@ export const throwIfNoTeamAccess = async (
   req: NextApiRequest,
   res: NextApiResponse
 ) => {
+
+   // Bypass auth check for internal calls, e.g., from your custom resource Lambda.
+   if (req.headers['x-internal-secret'] === process.env.INTERNAL_SECRET) {
+    return; // skip auth check
+  }
   const session = await getSession(req, res);
 
   if (!session) {

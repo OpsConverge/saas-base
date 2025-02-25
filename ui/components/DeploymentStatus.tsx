@@ -1,8 +1,8 @@
 // components/DeploymentStatus.tsx
 import React, { useEffect, useState } from 'react';
-import io from 'socket.io-client';
+import { io, Socket } from 'socket.io-client';
 
-let socket: SocketIOClient.Socket;
+let socket: Socket;
 
 const DeploymentStatus: React.FC = () => {
   const [status, setStatus] = useState<string>('Pending');

@@ -59,6 +59,8 @@ const handlePOST = async (req: NextApiRequest, res: NextApiResponse) => {
     userId: user.id,
     name,
     slug,
+    roleArn: "",      // default value
+    externalId: "",   // default value
   });
 
   recordMetric('team.created');

@@ -116,6 +116,9 @@ const handlePOST = async (req: NextApiRequest, res: NextApiResponse) => {
       userId: user.id,
       name: team,
       slug: slugify(team),
+      roleArn: "",         // default value
+      externalId: "",      // default value
+      
     });
   } else {
     userTeam = await getTeam({ slug: invitation.team.slug });

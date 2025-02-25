@@ -21,6 +21,8 @@ const unAuthenticatedRoutes = [
   '/unlock-account',
   '/login/saml',
   '/.well-known/*',
+  '/api/teams/storeCrossAccountRoleCallback',
+  '/api/notifyDeploymentComplete',
 ];
 
 export default async function middleware(req: NextRequest) {

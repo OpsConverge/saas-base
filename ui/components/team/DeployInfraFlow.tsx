@@ -163,7 +163,7 @@ const DeployInfraFlow: React.FC<DeployInfraFlowProps> = ({ team }) => {
             <input
               id="aws-account-id"
               type="text"
-              placeholder="123456789012"
+              placeholder="*********"
               value={awsAccountId}
               onChange={(e) => setAwsAccountId(e.target.value)}
               className="px-3 py-2 border rounded w-full"
