@@ -4,7 +4,7 @@
   <img alt="BoxyHQ Banner" src="https://github.com/boxyhq/jackson/assets/66887028/b40520b7-dbce-400b-88d3-400d1c215ea1">
 </picture>
 
-# ⭐ Enterprise SaaS Starter Kit
+# ⭐ OpsConverge
 
 <p>
     <a href="https://github.com/boxyhq/saas-starter-kit/stargazers"><img src="https://img.shields.io/github/stars/boxyhq/saas-starter-kit" alt="Github stargazers"></a>
