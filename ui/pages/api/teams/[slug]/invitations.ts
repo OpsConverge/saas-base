@@ -63,6 +63,9 @@ export default async function handler(
 // Invite a user to a team
 const handlePOST = async (req: NextApiRequest, res: NextApiResponse) => {
   const teamMember = await throwIfNoTeamAccess(req, res);
+  if (!teamMember) {
+    throw new ApiError(403, 'Forbidden');
+  }
   throwIfNotAllowed(teamMember, 'team_invitation', 'create');
 
   const { email, role, sentViaEmail, domains } = validateWithSchema(
@@ -200,6 +203,9 @@ Execution Time: 0.152 ms
 // Get all invitations for a team
 const handleGET = async (req: NextApiRequest, res: NextApiResponse) => {
   const teamMember = await throwIfNoTeamAccess(req, res);
+  if (!teamMember) {
+    throw new ApiError(403, 'Forbidden');
+  }
   throwIfNotAllowed(teamMember, 'team_invitation', 'read');
 
   const { sentViaEmail } = validateWithSchema(
@@ -220,6 +226,9 @@ const handleGET = async (req: NextApiRequest, res: NextApiResponse) => {
 // Delete an invitation
 const handleDELETE = async (req: NextApiRequest, res: NextApiResponse) => {
   const teamMember = await throwIfNoTeamAccess(req, res);
+  if (!teamMember) {
+    throw new ApiError(403, 'Forbidden');
+  }
   throwIfNotAllowed(teamMember, 'team_invitation', 'delete');
 
   const { id } = validateWithSchema(

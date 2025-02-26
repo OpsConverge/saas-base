@@ -56,7 +56,9 @@ export default async function handler(
 // Get the SSO connection for the team.
 const handleGET = async (req: NextApiRequest, res: NextApiResponse) => {
   const teamMember = await throwIfNoTeamAccess(req, res);
-
+  if (!teamMember) {
+    throw new Error('Team member not found');
+  }
   throwIfNotAllowed(teamMember, 'team_sso', 'read');
 
   if ('clientID' in req.query) {
@@ -79,7 +81,9 @@ const handleGET = async (req: NextApiRequest, res: NextApiResponse) => {
 // Create a SSO connection for the team
 const handlePOST = async (req: NextApiRequest, res: NextApiResponse) => {
   const teamMember = await throwIfNoTeamAccess(req, res);
-
+  if (!teamMember) {
+    throw new Error('Team member not found');
+  }
   throwIfNotAllowed(teamMember, 'team_sso', 'create');
 
   const connection = await sso.createConnection({
@@ -102,7 +106,9 @@ const handlePOST = async (req: NextApiRequest, res: NextApiResponse) => {
 
 const handlePATCH = async (req: NextApiRequest, res: NextApiResponse) => {
   const teamMember = await throwIfNoTeamAccess(req, res);
-
+  if (!teamMember) {
+    throw new Error('Team member not found');
+  }
   throwIfNotAllowed(teamMember, 'team_sso', 'create');
 
   await throwIfNoAccessToConnection({
@@ -128,7 +134,9 @@ const handlePATCH = async (req: NextApiRequest, res: NextApiResponse) => {
 
 const handleDELETE = async (req: NextApiRequest, res: NextApiResponse) => {
   const teamMember = await throwIfNoTeamAccess(req, res);
-
+  if (!teamMember) {
+    throw new Error('Team member not found');
+  }
   throwIfNotAllowed(teamMember, 'team_sso', 'delete');
 
   await throwIfNoAccessToConnection({

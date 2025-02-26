@@ -33,14 +33,15 @@ const UploadAvatar = ({ user }: { user: Partial<User> }) => {
       onAvatarUpload(file);
     }
   };
-
-  const onChangePicture = useCallback((e) => {
-    const file = e.target.files[0];
+  const onChangePicture = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
 
     if (file) {
       onAvatarUpload(file);
     }
-  }, []);
+  }
+}, []);
 
   const onAvatarUpload = (file: File) => {
     if (file.size / 1024 / 1024 > 2) {

@@ -46,6 +46,9 @@ export default async function handler(
 const handleGET = async (req: NextApiRequest, res: NextApiResponse) => {
   const teamMember = await throwIfNoTeamAccess(req, res);
 
+  if (!teamMember) {
+    throw new ApiError(403, 'Forbidden');
+  }
   throwIfNotAllowed(teamMember, 'team_dsync', 'read');
 
   const connections = await dsync.getConnections({
@@ -57,7 +60,9 @@ const handleGET = async (req: NextApiRequest, res: NextApiResponse) => {
 
 const handlePOST = async (req: NextApiRequest, res: NextApiResponse) => {
   const teamMember = await throwIfNoTeamAccess(req, res);
-
+  if (!teamMember) {
+    throw new ApiError(403, 'Forbidden');
+  }
   throwIfNotAllowed(teamMember, 'team_dsync', 'create');
 
   const { body } = req;

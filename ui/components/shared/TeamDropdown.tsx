@@ -16,9 +16,26 @@ import { maxLengthPolicies } from '@/lib/common';
 const TeamDropdown = () => {
   const router = useRouter();
   const { teams } = useTeams();
-  const { data } = useSession();
+  const { data, status } = useSession(); // Destructure `status` as well
   const { t } = useTranslation('common');
+   
 
+
+  console.log('Session status:', status);
+  console.log('Session data:', data);
+  
+  
+  // Handle loading state
+  if (status === 'loading') {
+    return <div>Loading...</div>;
+  }
+
+  // Handle unauthenticated state
+  if (status === 'unauthenticated' || !data?.user) {
+    return <div>Please sign in</div>;
+  }
+
+  // At this point, `data` is guaranteed to be defined and `status` is "authenticated"
   const currentTeam = (teams || []).find(
     (team) => team.slug === router.query.slug
   );
@@ -39,8 +56,8 @@ const TeamDropdown = () => {
       name: t('profile'),
       items: [
         {
-          id: data?.user.id,
-          name: data?.user?.name,
+          id: data.user.id ?? 'default-id', // Fallback for missing `id`
+          name: data.user.name ?? 'Unknown User', // Fallback for missing `name`
           href: '/settings/account',
           icon: UserCircleIcon,
         },
@@ -73,10 +90,7 @@ const TeamDropdown = () => {
         className="border border-gray-300 dark:border-gray-600 flex h-10 items-center px-4 justify-between cursor-pointer rounded text-sm font-bold"
       >
         {currentTeam?.name ||
-          data?.user?.name?.substring(
-            0,
-            maxLengthPolicies.nameShortDisplay
-          )}{' '}
+          data.user.name?.substring(0, maxLengthPolicies.nameShortDisplay)}{' '}
         <ChevronUpDownIcon className="w-5 h-5" />
       </div>
       <ul

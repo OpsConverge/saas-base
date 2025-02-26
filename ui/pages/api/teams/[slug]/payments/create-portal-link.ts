@@ -31,6 +31,10 @@ export default async function handler(
 const handlePOST = async (req: NextApiRequest, res: NextApiResponse) => {
   const teamMember = await throwIfNoTeamAccess(req, res);
   const session = await getSession(req, res);
+  if (!teamMember) {
+    throw new Error('Team member not found');
+  }
+
   const customerId = await getStripeCustomerId(teamMember, session);
 
   const { url } = await stripe.billingPortal.sessions.create({

@@ -22,7 +22,7 @@ export default async function storeCrossAccountRole(
     console.log(`Storing cross-account role info for teamId: ${teamId}`);
 
     // Update the team record in the database
-    const updatedTeam = await prisma.team.update({
+    const updatedTeam = await prisma.teamRole.update({
       where: { id: teamId },
       data: {
         roleArn,
@@ -36,7 +36,7 @@ export default async function storeCrossAccountRole(
     console.error('Error storing cross-account role info:', error);
 
     // Handle specific Prisma errors (e.g., team not found)
-    if (error.code === 'P2025') {
+    if ((error as any).code === 'P2025') {
       return res.status(404).json({ error: 'Team not found' });
     }
 

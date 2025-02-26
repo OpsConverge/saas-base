@@ -355,10 +355,10 @@ export const getAuthOptions = (
         // Fetch the team ID for the user from the `TeamMember` table using Prisma
         const teamMember = await prisma.teamMember.findFirst({
           where: {
-            userid: user.id, // Ensure this matches the column name in your Prisma schema
+            userId: user.id, // Ensure this matches the column name in your Prisma schema
           },
           select: {
-            teamid: true, // Ensure this matches the column name in your Prisma schema
+            teamId: true, // Ensure this matches the column name in your Prisma schema
           },
         });
 
@@ -373,24 +373,43 @@ export const getAuthOptions = (
       },
 
       async session({ session, token, user }) {
-        // Add the team ID from the token to the session
-    if (token.teamId) {
-      session.user.teamId = token.teamId;
-      console.log('Team ID added to session:', session.user.teamId);
-    } 
+        if (session && (token || user)) {
+          session.user.id = token?.sub || user?.id;
+        }
+
+        if (user?.name) {
+          user.name = user.name.substring(0, maxLengthPolicies.name);
+        }
         if (session?.user?.name) {
           session.user.name = session.user.name.substring(
             0,
             maxLengthPolicies.name
           );
         }
+        session.user = {
+          ...session.user,
+          id: token.id, // Add the user's ID to the session
+        };
 
-        return session;
-      },
+        // Add the team ID from the token to the session
+        if (token.teamId) {
+          session.user.id = token.sub || user.id; // Add the `id` property
+          session.user.teamId = token.teamId;
+          console.log('Team ID added to session:', session.user.teamId);
+          console.log('This is ID sesion.user.id :', session.user.id);
+      
+        } 
+            return session;
+          },
 
       async jwt({ token, trigger, session, account, user }) {
           // During the first sign-in, `user` will be available
           if (user) {
+            token.id = user.id; // Add the user's ID to the token
+          }
+          
+          if (user) {
+            token.sub = user.id; // Add the `id` property
             // Fetch the team ID for the user from the `TeamMember` table using Prisma
             const teamMember = await prisma.teamMember.findFirst({
               where: {

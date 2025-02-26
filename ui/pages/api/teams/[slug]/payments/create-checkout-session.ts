@@ -36,6 +36,9 @@ const handlePOST = async (req: NextApiRequest, res: NextApiResponse) => {
   );
 
   const teamMember = await throwIfNoTeamAccess(req, res);
+  if (!teamMember) {
+    return res.status(400).json({ error: { message: 'Team member not found' } });
+  }
   const session = await getSession(req, res);
   const customer = await getStripeCustomerId(teamMember, session);
 

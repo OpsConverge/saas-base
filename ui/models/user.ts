@@ -102,19 +102,15 @@ const isAllowed = (role: Role, resource: Resource, action: Action) => {
 };
 
 export const throwIfNotAllowed = (
-  user: Pick<TeamMember, 'role'>,
+  user: Pick<TeamMember, 'role'> | undefined, // Allow `user` to be `undefined`
   resource: Resource,
   action: Action
 ) => {
-  if (isAllowed(user.role, resource, action)) {
-    return true;
+  // Check if `user` is undefined
+  if (!user) {
+    throw new ApiError(403, 'Forbidden');
   }
-
-  throw new ApiError(
-    403,
-    `You are not allowed to perform ${action} on ${resource}`
-  );
-};
+}
 
 // Get current user from session
 export const getCurrentUser = async (

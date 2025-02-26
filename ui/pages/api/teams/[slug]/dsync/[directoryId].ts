@@ -46,10 +46,16 @@ export default async function handler(
   }
 }
 
+
 const handleGET = async (req: NextApiRequest, res: NextApiResponse) => {
   const teamMember = await throwIfNoTeamAccess(req, res);
 
-  throwIfNotAllowed(teamMember, 'team_dsync', 'read');
+  if (!teamMember) {
+    throw new ApiError(403, 'Forbidden');
+  }
+  if (teamMember) {
+    throwIfNotAllowed(teamMember, 'team_dsync', 'read');
+  }
 
   const directoryId = req.query.directoryId as string;
 
@@ -65,6 +71,10 @@ const handleGET = async (req: NextApiRequest, res: NextApiResponse) => {
 
 const handlePATCH = async (req: NextApiRequest, res: NextApiResponse) => {
   const teamMember = await throwIfNoTeamAccess(req, res);
+
+  if (!teamMember) {
+    throw new ApiError(403, 'Forbidden');
+  }
 
   throwIfNotAllowed(teamMember, 'team_dsync', 'read');
 
@@ -82,8 +92,12 @@ const handlePATCH = async (req: NextApiRequest, res: NextApiResponse) => {
 
 const handleDELETE = async (req: NextApiRequest, res: NextApiResponse) => {
   const teamMember = await throwIfNoTeamAccess(req, res);
+  if (!teamMember) {
+    throw new ApiError(403, 'Forbidden');
+  }
 
   throwIfNotAllowed(teamMember, 'team_dsync', 'delete');
+
 
   await throwIfNoAccessToDirectory({
     teamId: teamMember.team.id,
