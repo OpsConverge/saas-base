@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import app from '@/lib/app';
 import { SessionProvider } from 'next-auth/react';
 import { appWithTranslation } from 'next-i18next';
@@ -9,7 +10,6 @@ import mixpanel from 'mixpanel-browser';
 
 import '@boxyhq/react-ui/dist/style.css';
 import '../styles/globals.css';
-import { useEffect } from 'react';
 import env from '@/lib/env';
 import { Theme, applyTheme } from '@/lib/theme';
 import { Themer } from '@boxyhq/react-ui/shared';
@@ -18,8 +18,13 @@ import { AccountLayout } from '@/components/layouts';
 function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   const { session, ...props } = pageProps;
 
-  // Add mixpanel
   useEffect(() => {
+    // Initialize Socket.IO
+    fetch('/api/socketio').finally(() => {
+      console.log('Socket.IO initialized');
+    });
+
+    // Add mixpanel
     if (env.mixpanel.token) {
       mixpanel.init(env.mixpanel.token, {
         debug: true,
