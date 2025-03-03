@@ -23,6 +23,8 @@ const unAuthenticatedRoutes = [
   '/.well-known/*',
   '/api/teams/storeCrossAccountRoleCallback',
   '/api/notifyDeploymentComplete',
+  '/api/socketio',
+  '/api/socket',
 ];
 
 export default async function middleware(req: NextRequest) {

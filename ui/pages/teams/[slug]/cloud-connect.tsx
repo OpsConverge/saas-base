@@ -7,16 +7,28 @@ const CloudConnect = () => {
   const [deploymentStatus, setDeploymentStatus] = useState<string>('Pending');
   const [deploymentMessage, setDeploymentMessage] = useState<string>('');
   const [selectedProvider, setSelectedProvider] = useState<'aws' | 'azure' | 'gcp' | null>(null);
-  const [teamId, setTeamId] = useState<string>(''); // team id from session
+  const [teamId, setTeamId] = useState<string>(''); // Team ID from session
   const [loading, setLoading] = useState<boolean>(false);
 
   // Initialize Socket.IO connection for deployment updates.
   useEffect(() => {
-    const socket = io();
+    // Connect to the correct WebSocket path
+    const socket = io('http://localhost:4002', {
+      path: '/api/socket', // Match the server's path
+      transports: ['websocket'], // Force WebSocket transport
+    });
+
+    // Log successful connection
+    socket.on('connect', () => {
+      console.log('Connected to WebSocket server');
+    });
+
+    // Listen for deployment updates from the backend.
     socket.on('deploymentUpdate', (update) => {
       console.log('Received deployment update:', update);
       setDeploymentStatus(update.status);
       setDeploymentMessage(update.message);
+
       if (update.status === 'CREATE_COMPLETE') {
         toast.success('Deployment completed successfully!');
       } else if (update.status === 'FAILED') {
@@ -24,6 +36,19 @@ const CloudConnect = () => {
       }
     });
 
+    // Handle connection errors.
+    socket.on('connect_error', (error) => {
+      console.error('Socket.IO connection error:', error);
+      toast.error('Failed to connect to the deployment server.');
+    });
+
+    // Handle disconnections.
+    socket.on('disconnect', () => {
+      console.log('Disconnected from WebSocket server');
+      toast.error('Lost connection to the deployment server.');
+    });
+
+    // Clean up the socket connection on unmount.
     return () => {
       socket.disconnect();
     };
@@ -34,6 +59,7 @@ const CloudConnect = () => {
     async function fetchSession() {
       const session = await getSession();
       console.log("Session:", session);
+
       // Assuming your session contains the team ID in session.user.teamId
       if (session?.user?.teamId) {
         setTeamId(session.user.teamId);
@@ -62,13 +88,12 @@ const CloudConnect = () => {
       const encodedTemplateUrl = encodeURIComponent(rawTemplateUrl);
 
       // Build the CloudFormation Quick Create URL, including the team ID.
-      // Ensure the parameter name matches your CloudFormation template exactly.
       const quickCreateUrl = `https://console.aws.amazon.com/cloudformation/home?region=${region}#/stacks/quickcreate?templateUrl=${encodedTemplateUrl}&stackName=${stackName}&param_ExternalID=${externalId}&param_TeamID=${teamId}&capabilities=CAPABILITY_IAM`;
       console.log("Quick Create URL:", quickCreateUrl);
-      
-      // This URL is opened in a new tab, which triggers CloudFormation.
+
+      // Open the URL in a new tab, which triggers CloudFormation.
       window.open(quickCreateUrl, '_blank');
-      
+
       toast.success('Opened AWS CloudFormation console in a new tab!');
     } catch (error) {
       console.error('Error during AWS connection:', error);
