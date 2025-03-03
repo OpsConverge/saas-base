@@ -29,13 +29,6 @@ export const initializeSocket = (server: HttpServer): IOServer => {
       socket.on('disconnect', () => {
         console.log("Client disconnected:", socket.id);
       });
-
-      // Handle custom events (if needed)
-      socket.on('customEvent', (data: any) => {
-        console.log("Received custom event:", data);
-        // Emit a response or broadcast to other clients
-        socket.emit('customEventResponse', { message: 'Event received' });
-      });
     });
 
     // Handle connection errors

@@ -1,4 +1,3 @@
-// pages/api/notifyDeploymentComplete.ts
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getSocketInstance } from '../../lib/socket';
 

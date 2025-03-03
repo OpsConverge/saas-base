@@ -26,8 +26,8 @@ const CloudConnect = () => {
     // Listen for deployment updates from the backend.
     socket.on('deploymentUpdate', (update) => {
       console.log('Received deployment update:', update);
-      setDeploymentStatus(update.status);
-      setDeploymentMessage(update.message);
+      setDeploymentStatus(update.status); // Update deployment status
+      setDeploymentMessage(update.message); // Update deployment message
 
       if (update.status === 'CREATE_COMPLETE') {
         toast.success('Deployment completed successfully!');
