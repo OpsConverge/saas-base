@@ -1,6 +1,6 @@
 // pages/api/socketio.ts
 import { NextApiRequest, NextApiResponse } from 'next';
-import { Server as IOServer } from 'socket.io';
+import { initializeSocket } from '../../lib/socket';
 
 export const config = {
   api: {
@@ -9,30 +9,16 @@ export const config = {
 };
 
 const SocketHandler = (req: NextApiRequest, res: NextApiResponse) => {
-  // Ensure res.socket exists.
-  if (!res.socket) {
+  const socket = res.socket as any;
+
+  if (!socket || !socket.server) {
     res.status(500).end("Socket not found");
     return;
   }
 
-  // Cast res.socket to any so that we can access custom properties.
-  const socket: any = res.socket;
+  // Initialize the Socket.IO server using the centralized function
+  initializeSocket(socket.server);
 
-  // Check if the Socket.IO server is already initialized on the underlying HTTP server.
-  if (!socket.server || !socket.server.io) {
-    console.log("Initializing new Socket.IO server...");
-    // Attach Socket.IO to the HTTP server.
-    const io = new IOServer(socket.server);
-    io.on('connection', (socket: any) => {
-      console.log("Client connected:", socket.id);
-      socket.on('disconnect', () => {
-        console.log("Client disconnected:", socket.id);
-      });
-    });
-    // Save the io instance on the server so that subsequent requests reuse it.
-    socket.server.io = io;
-  }
-  
   res.end();
 };
 
