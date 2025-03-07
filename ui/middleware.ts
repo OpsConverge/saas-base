@@ -25,6 +25,8 @@ const unAuthenticatedRoutes = [
   '/api/notifyDeploymentComplete',
   '/api/socketio',
   '/api/socket',
+  '/api/getTeamRole',
+  
 ];
 
 export default async function middleware(req: NextRequest) {
