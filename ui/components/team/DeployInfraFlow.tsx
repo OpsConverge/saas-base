@@ -13,6 +13,7 @@ interface DeployInfraFlowProps {
 }
 
 const DeployInfraFlow: React.FC<DeployInfraFlowProps> = ({ team }) => {
+<<<<<<< working
   // Steps: 1=Intro, 2=Select Provider, 3=Select Template, 4=AWS Account ID, 5=Done
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [selectedProvider, setSelectedProvider] = useState<string>('');
@@ -48,6 +49,74 @@ const DeployInfraFlow: React.FC<DeployInfraFlowProps> = ({ team }) => {
     if (currentStep === 4 && !awsAccountId) {
       toast.error('Please provide your AWS account ID (optional for demo, but required for your real flow).');
       // If truly optional, remove this check.
+=======
+  const [deploymentStatus, setDeploymentStatus] = useState<string>('Pending');
+  const [deploymentMessage, setDeploymentMessage] = useState<string>('');
+  const [selectedProvider, setSelectedProvider] = useState<'aws' | 'azure' | 'gcp' | null>(null);
+  const [teamRole, setTeamRole] = useState<{ roleArn: string; externalId: string } | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  // Initialize Socket.IO connection for deployment updates.
+  useEffect(() => {
+    const socket = io('https://OpsConverge.com', {
+      path: '/api/socket',
+      transports: ['websocket'],
+    });
+
+    socket.on('connect', () => {
+      console.log('Connected to WebSocket server');
+    });
+
+    socket.on('deploymentUpdate', (update) => {
+      console.log('Received deployment update:', update);
+      setDeploymentStatus(update.status);
+      setDeploymentMessage(update.message);
+
+      if (update.status === 'CREATE_COMPLETE' || update.status === 'FAILED') {
+        setLoading(false);
+      }
+    });
+
+    socket.on('connect_error', (error) => {
+      console.error('Socket.IO connection error:', error);
+      toast.error('Failed to connect to the deployment server.');
+      setLoading(false);
+    });
+
+    socket.on('disconnect', () => {
+      console.log('Disconnected from WebSocket server');
+      toast.error('Lost connection to the deployment server.');
+      setLoading(false);
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
+  // Fetch TeamRole using the teamId.
+  useEffect(() => {
+    const fetchTeamRole = async () => {
+      try {
+        if (!team.id) return;
+
+        const response = await axios.get(`/api/getTeamRole?teamId=${team.id}`);
+        setTeamRole(response.data);
+        console.log('Fetched TeamRole:', response.data);
+      } catch (error) {
+        console.error('Error fetching TeamRole:', error);
+        toast.error('Failed to fetch team role information.');
+      }
+    };
+
+    fetchTeamRole();
+  }, [team.id]);
+
+  // Handle AWS-specific flow for deploying infrastructure.
+  const handleDeploy = async () => {
+    if (!team.id || !teamRole) {
+      toast.error('Team ID or role information is missing.');
+>>>>>>> local
       return;
     }
     setCurrentStep((prev) => prev + 1);
@@ -76,8 +145,13 @@ const DeployInfraFlow: React.FC<DeployInfraFlowProps> = ({ team }) => {
       const stackName = `MyStack-${Date.now()}`;
       const rawTemplateUrl = `https://opsconverge01.s3.${region}.amazonaws.com/Basic.yaml`;
 
+<<<<<<< working
       // 2. URL-encode the template URL
       const encodedTemplateUrl = encodeURIComponent(rawTemplateUrl);
+=======
+      // Include TeamID in the Quick Create URL
+      const quickCreateUrl = `https://console.aws.amazon.com/cloudformation/home?region=${region}#/stacks/quickcreate?templateUrl=${encodedTemplateUrl}&stackName=${stackName}&param_RoleArn=${encodeURIComponent(teamRole.roleArn)}&param_ExternalID=${teamRole.externalId}&param_TeamID=${encodeURIComponent(team.id)}&capabilities=CAPABILITY_IAM`;
+>>>>>>> local
 
       // Example dynamic external ID
       const externalID = Math.random().toString(36).substring(2, 10);
@@ -262,4 +336,7 @@ const DeployInfraFlow: React.FC<DeployInfraFlowProps> = ({ team }) => {
 };
 
 export default DeployInfraFlow;
+<<<<<<< working
 
+=======
+>>>>>>> local

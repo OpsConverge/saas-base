@@ -11,7 +11,18 @@ const CloudConnect = () => {
 
   // Initialize Socket.IO connection
   useEffect(() => {
+<<<<<<< working
     const socket = io(); // Connect to the Socket.IO server
+=======
+    const socket = io('https://opsconverge.com', {
+      path: '/api/socket',
+      transports: ['websocket'],
+    });
+
+    socket.on('connect', () => {
+      console.log('Connected to WebSocket server');
+    });
+>>>>>>> local
 
     // Listen for deployment updates
     socket.on('deploymentUpdate', (update) => {
