@@ -4,10 +4,7 @@ import { useTranslation } from 'next-i18next';
 import type { NextPageWithLayout } from 'types';
 import { GetServerSidePropsContext } from 'next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import FAQSection from '@/components/defaultLanding/FAQSection';
 import HeroSection from '@/components/defaultLanding/HeroSection';
-import FeatureSection from '@/components/defaultLanding/FeatureSection';
-import PricingSection from '@/components/defaultLanding/PricingSection';
 import useTheme from 'hooks/useTheme';
 import env from '@/lib/env';
 import Head from 'next/head';
@@ -61,12 +58,6 @@ const Home: NextPageWithLayout = () => {
           </div>
         </div>
         <HeroSection />
-        <div className="divider"></div>
-        <FeatureSection />
-        <div className="divider"></div>
-        <PricingSection />
-        <div className="divider"></div>
-        <FAQSection />
       </div>
     </>
   );

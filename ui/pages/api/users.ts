@@ -1,64 +1,64 @@
-import { getSession } from '@/lib/session';
-import type { NextApiRequest, NextApiResponse } from 'next';
-import { recordMetric } from '@/lib/metrics';
-import { ApiError } from '@/lib/errors';
+// File: pages/teams/[slug]/infrastructure.tsx
+import { useState } from 'react';
+import { Error, Loading } from '@/components/shared';
+import useTeam from 'hooks/useTeam';
+import type { GetServerSidePropsContext } from 'next';
+import { useTranslation } from 'next-i18next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import DeployInfraFlow from '@/components/team/DeployInfraFlow';
+import InfraInventory from '@/components/team/InfraInventory';
 import env from '@/lib/env';
-import { getUser, updateUser } from 'models/user';
-import { isEmailAllowed } from '@/lib/email/utils';
-import { updateAccountSchema, validateWithSchema } from '@/lib/zod';
+import type { TeamFeature } from 'types';
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  try {
-    switch (req.method) {
-      case 'PUT':
-        await handlePUT(req, res);
-        break;
-      default:
-        res.setHeader('Allow', 'PUT');
-        res.status(405).json({
-          error: { message: `Method ${req.method} Not Allowed` },
-        });
-    }
-  } catch (error: any) {
-    const message = error.message || 'Something went wrong';
-    const status = error.status || 500;
+const Infrastructure = ({ teamFeatures }: { teamFeatures: TeamFeature }) => {
+  const { t } = useTranslation('common');
+  const { isLoading, isError, team } = useTeam();
+  const [activeTab, setActiveTab] = useState<'deploy' | 'inventory'>('deploy');
 
-    res.status(status).json({ error: { message } });
-  }
+  if (isLoading) return <Loading />;
+  if (isError) return <Error message={isError.message} />;
+  if (!team) return <Error message={t('team-not-found')} />;
+
+  return (
+    <div className="p-6">
+      <div className="mb-4 border-b">
+        <button
+          onClick={() => setActiveTab('deploy')}
+          className={`px-4 py-2 mr-2 ${
+            activeTab === 'deploy'
+              ? 'border-b-2 border-blue-600 font-semibold'
+              : 'text-gray-600'
+          }`}
+        >
+          Deploy Infra
+        </button>
+        <button
+          onClick={() => setActiveTab('inventory')}
+          className={`px-4 py-2 ${
+            activeTab === 'inventory'
+              ? 'border-b-2 border-blue-600 font-semibold'
+              : 'text-gray-600'
+          }`}
+        >
+          Infra Inventory
+        </button>
+      </div>
+      {activeTab === 'deploy' ? (
+        <DeployInfraFlow team={team} />
+      ) : (
+        <InfraInventory team={team} />
+      )}
+    </div>
+  );
+};
+
+export async function getServerSideProps({ locale }: GetServerSidePropsContext) {
+  return {
+    props: {
+      ...(locale ? await serverSideTranslations(locale, ['common']) : {}),
+      teamFeatures: env.teamFeatures,
+    },
+  };
 }
 
-const handlePUT = async (req: NextApiRequest, res: NextApiResponse) => {
-  const data = validateWithSchema(updateAccountSchema, req.body);
-
-  const session = await getSession(req, res);
-
-  if ('email' in data) {
-    const allowEmailChange = env.confirmEmail === false;
-
-    if (!allowEmailChange) {
-      throw new ApiError(400, 'Email change is not allowed.');
-    }
-
-    if (!isEmailAllowed(data.email)) {
-      throw new ApiError(400, 'Please use your work email.');
-    }
-
-    const user = await getUser({ email: data.email });
-
-    if (user && user.id !== session?.user.id) {
-      throw new ApiError(400, 'Email already in use.');
-    }
-  }
-
-  await updateUser({
-    where: { id: session?.user.id },
-    data,
-  });
-
-  recordMetric('user.updated');
-
-  res.status(204).end();
-};
+export default Infrastructure;

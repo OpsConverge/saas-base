@@ -1,4 +1,3 @@
-// pages/api/teams/storeTeamAWSRoleCallback.ts
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { prisma } from '@/lib/prisma';
 
@@ -27,4 +26,4 @@ export default async function handler(
     console.error("Error updating team role info:", error);
     res.status(500).json({ error: error.message });
   }
-}
+} 

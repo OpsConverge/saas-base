@@ -20,12 +20,6 @@ const TeamNavigation = ({ slug, activePathname }: NavigationItemsProps) => {
 
   const menus: MenuItem[] = [
     {
-      name: t('all-products'),
-      href: `/teams/${slug}/products`,
-      icon: CodeBracketIcon,
-      active: activePathname === `/teams/${slug}/products`,
-    },
-    {
       name: t('code-ci-cd-deploy'),
       href: `/teams/${slug}/ci-cd`,
       icon: ArrowPathIcon, // You can use a different icon if needed
@@ -67,7 +61,6 @@ const TeamNavigation = ({ slug, activePathname }: NavigationItemsProps) => {
       icon: Cog6ToothIcon,
       active:
         activePathname?.startsWith(`/teams/${slug}`) &&
-        !activePathname.includes('products') &&
         !activePathname.includes('ci-cd') &&
         !activePathname.includes('infrastructure') &&
         !activePathname.includes('observability') &&

@@ -1,41 +1,27 @@
 // components/DeploymentStatus.tsx
-import React, { useEffect, useState } from 'react';
-import { io, Socket } from 'socket.io-client';
+import React from 'react';
 
-let socket: Socket;
+interface DeploymentStatusProps {
+  status: string;
+  message: string;
+}
 
-const DeploymentStatus: React.FC = () => {
-  const [status, setStatus] = useState<string>('Pending');
-  const [message, setMessage] = useState<string>('Waiting for deployment update...');
-
-  useEffect(() => {
-    // Connect to the Socket.IO server. (Assumes your server is set up to serve Socket.IO.)
-    socket = io(); // You can also specify a URL if needed.
-    
-    socket.on('connect', () => {
-      console.log('Connected to WebSocket server with ID:', socket.id);
-    });
-
-    socket.on('deploymentUpdate', (data: any) => {
-      console.log('Received deployment update:', data);
-      setStatus(data.status);
-      setMessage(data.message);
-    });
-
-    socket.on('disconnect', () => {
-      console.log('Disconnected from WebSocket server.');
-    });
-
-    return () => {
-      if (socket) socket.disconnect();
-    };
-  }, []);
-
+const DeploymentStatus: React.FC<DeploymentStatusProps> = ({ status, message }) => {
   return (
-    <div>
-      <h3>Deployment Status</h3>
-      <p>Status: {status}</p>
-      <p>Message: {message}</p>
+    <div className="p-4 border rounded">
+      <h3 className="text-lg font-medium mb-2">Deployment Status</h3>
+      <div className="space-y-2">
+        <p>
+          <span className="font-medium">Status:</span>{' '}
+          <span className={status === 'CREATE_COMPLETE' ? 'text-green-600' : status === 'FAILED' ? 'text-red-600' : 'text-blue-600'}>
+            {status}
+          </span>
+        </p>
+        <p>
+          <span className="font-medium">Message:</span>{' '}
+          <span className="text-gray-600">{message}</span>
+        </p>
+      </div>
     </div>
   );
 };
